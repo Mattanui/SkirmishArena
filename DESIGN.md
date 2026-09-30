@@ -208,6 +208,12 @@ A plays Insight (1 mana): draws Strike. Hand: Jab, Strike
 A plays Insight (1 mana): draws nothing (draw pile empty)
 A plays Pickpocket (2 mana): takes Meteor from B. Hand: Jab, Meteor
 A plays Pickpocket (2 mana): takes nothing (B's hand is empty)
+B plays Aegis (5 mana): every incoming attack card is blocked during A's next turn
+A plays Meteor (5 mana): 8 damage, B's Aegis absorbs 8 -> 0 damage. B: 30 HP
+End of turn 11: B's Aegis ends
+A plays Amplify (5 mana): the next card this turn is doubled
+A plays Meteor (5 mana, amplified): 16 damage, B's Shield absorbs 2 -> 14 damage. B: 16 HP
+End of turn 9: A's Amplify is lost, no card followed it
 ```
 
 The log is written from above the table: it names the card Pickpocket takes, even though B would not see it.
@@ -219,7 +225,7 @@ Root package `com.skirmisharena`:
 | Package | Contents |
 |---|---|
 | `card` | `Card` (sealed interface) and one record per effect: `AttackCard`, `DefenseCard`, `ResourceCard`, `DrawCard`, `StealCard`, `HealCard`, `AmplifyCard`; `CardCategory`; `DefenseKind`; `CardPool` (the 27 cards) |
-| `engine` | `GameRules` (constants), `Champion` (mutable state), `Match` (runs one match, phases), `EffectResolver` (applies a card), `ActiveDefense`, `MatchResult`, `Side`, `EndReason` |
+| `engine` | `GameRules` (constants), `Champion` (mutable state), `Match` (runs one match, phases), `EffectResolver` (applies a card), `ActiveDefense`, `MatchResult`, `Side`, `EndReason`; internal helpers `PlayOutcome` (damage dealt, Amplify still pending) and `LogText` (log formatting) |
 | `bot` | `Strategy`, `BotView` (read-only snapshot given to a bot), `AggressiveStrategy`, `DefensiveStrategy`, `BalancedStrategy`, `BotType` (command-line name → strategy) |
 | `log` | `MatchLog` (interface), `TextMatchLog` (sample match), `NoMatchLog` (bulk runs) |
 | `stats` | `SeriesStats` |
@@ -295,12 +301,15 @@ package engine {
     drawPile : Deque<Card>
   }
   class EffectResolver {
-    apply(card, amplified) : void
+    apply(card, caster, opponent, amplifyPending) : PlayOutcome
   }
   class ActiveDefense <<record>> {
+    cardName : String
     kind : DefenseKind
     amount : int
     turnsLeft : int
+    absorb(damage) : int
+    countDown() : Optional<ActiveDefense>
   }
   class MatchResult <<record>> {
     winner : Optional<Side>

@@ -2,6 +2,7 @@ package com.skirmisharena.engine;
 
 import com.skirmisharena.bot.BotView;
 import com.skirmisharena.bot.Strategy;
+import com.skirmisharena.card.DefenseCard;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,17 @@ final class TestStrategies {
     /** Plays the first card of the hand it can afford, in hand order. */
     static final Strategy PLAY_FIRST_AFFORDABLE =
             view -> view.hand().stream().filter(card -> card.cost() <= view.mana()).findFirst();
+
+    /** Plays at most one card per turn: the first it can afford. */
+    static final Strategy ONE_AFFORDABLE_CARD_PER_TURN =
+            view -> view.cardsPlayedThisTurn().isEmpty() ? PLAY_FIRST_AFFORDABLE.nextCard(view) : Optional.empty();
+
+    /** Plays the first affordable Defense card whenever no own defense is active; nothing else. */
+    static final Strategy DEFEND_WHEN_POSSIBLE = view -> view.ownDefenseActive()
+            ? Optional.empty()
+            : view.hand().stream()
+                    .filter(card -> card instanceof DefenseCard && card.cost() <= view.mana())
+                    .findFirst();
 
     private TestStrategies() {
     }

@@ -2,6 +2,7 @@ package com.skirmisharena.engine;
 
 import com.skirmisharena.card.Card;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,9 +17,29 @@ final class LogText {
         return cards.stream().map(Card::name).collect(Collectors.joining(", "));
     }
 
-    /** "A plays Strike (2 mana): ", or "A plays Focus: " for a card that costs nothing. */
-    static String playPrefix(Champion caster, Card card) {
-        String cost = card.cost() > 0 ? " (" + card.cost() + " mana)" : "";
-        return caster.name() + " plays " + card.name() + cost + ": ";
+    /**
+     * "A plays Strike (2 mana): ", "A plays Meteor (5 mana, amplified): ",
+     * "A plays Focus: " for a card that costs nothing.
+     */
+    static String playPrefix(Champion caster, Card card, boolean amplified) {
+        List<String> details = new ArrayList<>();
+        if (card.cost() > 0) {
+            details.add(card.cost() + " mana");
+        }
+        if (amplified) {
+            details.add("amplified");
+        }
+        String between = details.isEmpty() ? "" : " (" + String.join(", ", details) + ")";
+        return caster.name() + " plays " + card.name() + between + ": ";
+    }
+
+    /** "next turn" or "next 2 turns". */
+    static String nextTurns(int turns) {
+        return turns == 1 ? "next turn" : "next " + turns + " turns";
+    }
+
+    /** "1 turn left" or "2 turns left". */
+    static String turnsLeft(int turns) {
+        return turns == 1 ? "1 turn left" : turns + " turns left";
     }
 }

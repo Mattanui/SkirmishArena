@@ -40,7 +40,7 @@ class EffectResolverTest {
         Champion a = champion("A", List.of(), 0);
         a.takeDamage(5);
 
-        resolver.apply(POTION, a, champion("B", List.of(), 0));
+        resolver.apply(POTION, a, champion("B", List.of(), 0), false);
 
         assertEquals(27, a.hp());
         assertEquals("A plays Potion (2 mana): heals 2. A: 27 HP", lastLine());
@@ -51,7 +51,7 @@ class EffectResolverTest {
         Champion a = champion("A", List.of(), 0);
         a.takeDamage(1);
 
-        resolver.apply(POTION, a, champion("B", List.of(), 0));
+        resolver.apply(POTION, a, champion("B", List.of(), 0), false);
 
         assertEquals(30, a.hp());
         assertEquals("A plays Potion (2 mana): heals 1 of 2 (max 30 HP). A: 30 HP", lastLine());
@@ -64,7 +64,7 @@ class EffectResolverTest {
         Champion a = championWithCapacity(5);
         a.pay(2);
 
-        resolver.apply(FOCUS, a, champion("B", List.of(), 0));
+        resolver.apply(FOCUS, a, champion("B", List.of(), 0), false);
 
         assertEquals(4, a.mana());
         assertEquals(5, a.capacity());
@@ -76,7 +76,7 @@ class EffectResolverTest {
         Champion a = championWithCapacity(5);
         a.pay(1);
 
-        resolver.apply(SURGE, a, champion("B", List.of(), 0));
+        resolver.apply(SURGE, a, champion("B", List.of(), 0), false);
 
         assertEquals(5, a.mana());
         assertEquals("A plays Surge: +1 of 2 mana (5/5)", lastLine());
@@ -86,7 +86,7 @@ class EffectResolverTest {
     void resourceAtFullManaChangesNothing() {
         Champion a = championWithCapacity(5);
 
-        resolver.apply(SURGE, a, champion("B", List.of(), 0));
+        resolver.apply(SURGE, a, champion("B", List.of(), 0), false);
 
         assertEquals(5, a.mana());
         assertEquals(5, a.capacity(), "a Resource card never raises the capacity");
@@ -99,7 +99,7 @@ class EffectResolverTest {
     void insightDrawsTheTopCardOfTheOwnPile() {
         Champion a = champion("A", List.of(STRIKE, JAB), 0);
 
-        resolver.apply(INSIGHT, a, champion("B", List.of(), 0));
+        resolver.apply(INSIGHT, a, champion("B", List.of(), 0), false);
 
         assertEquals(List.of(STRIKE), a.hand());
         assertEquals(List.of(JAB), a.drawPile());
@@ -110,7 +110,7 @@ class EffectResolverTest {
     void insightDrawsNothingWhenTheHandHolds7Cards() {
         Champion a = champion("A", Collections.nCopies(8, JAB), 7);
 
-        resolver.apply(INSIGHT, a, champion("B", List.of(), 0));
+        resolver.apply(INSIGHT, a, champion("B", List.of(), 0), false);
 
         assertEquals(7, a.hand().size());
         assertEquals(1, a.drawPileSize());
@@ -121,7 +121,7 @@ class EffectResolverTest {
     void insightDrawsNothingFromAnEmptyPile() {
         Champion a = champion("A", List.of(), 0);
 
-        resolver.apply(INSIGHT, a, champion("B", List.of(), 0));
+        resolver.apply(INSIGHT, a, champion("B", List.of(), 0), false);
 
         assertEquals(List.of(), a.hand());
         assertEquals("A plays Insight (1 mana): draws nothing (draw pile empty)", lastLine());
@@ -139,7 +139,7 @@ class EffectResolverTest {
         List<Card> expectedHandOfB = new ArrayList<>(handOfB);
         expectedHandOfB.remove(pickedIndex);
 
-        resolver.apply(PICKPOCKET, a, b);
+        resolver.apply(PICKPOCKET, a, b, false);
 
         assertEquals(List.of(expected), a.hand());
         assertEquals(expectedHandOfB, b.hand());
@@ -152,7 +152,7 @@ class EffectResolverTest {
         Champion a = champion("A", List.of(), 0);
         Champion b = champion("B", List.of(), 0);
 
-        resolver.apply(PICKPOCKET, a, b);
+        resolver.apply(PICKPOCKET, a, b, false);
 
         assertEquals(List.of(), a.hand());
         assertEquals("A plays Pickpocket (2 mana): takes nothing (B's hand is empty)", lastLine());
@@ -163,7 +163,7 @@ class EffectResolverTest {
         Champion a = champion("A", Collections.nCopies(7, JAB), 7);
         Champion b = champion("B", List.of(METEOR), 1);
 
-        resolver.apply(PICKPOCKET, a, b);
+        resolver.apply(PICKPOCKET, a, b, false);
 
         assertEquals(7, a.hand().size());
         assertEquals(List.of(METEOR), b.hand());

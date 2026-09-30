@@ -148,6 +148,25 @@ public final class Champion {
         hand.add(Objects.requireNonNull(card, "card"));
     }
 
+    /** One active defense per champion at a time (DESIGN.md §5). */
+    void raiseDefense(ActiveDefense defense) {
+        if (activeDefense != null) {
+            throw new IllegalStateException(name + " already has an active defense: " + activeDefense.cardName());
+        }
+        activeDefense = Objects.requireNonNull(defense, "defense");
+    }
+
+    /**
+     * Called at the end of each opponent turn: the defense has protected this champion once more
+     * (DESIGN.md §5). Returns the defense still active, or empty when it has just ended.
+     */
+    Optional<ActiveDefense> countDownDefense() {
+        if (activeDefense != null) {
+            activeDefense = activeDefense.countDown().orElse(null);
+        }
+        return activeDefense();
+    }
+
     void removeFromHand(Card card) {
         if (!hand.remove(card)) {
             throw new IllegalStateException(card.name() + " is not in " + name + "'s hand");

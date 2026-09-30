@@ -2,6 +2,7 @@ package com.skirmisharena.engine;
 
 import com.skirmisharena.bot.BotView;
 import com.skirmisharena.card.Card;
+import com.skirmisharena.card.DefenseCard;
 import com.skirmisharena.log.MatchLog;
 
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ public final class Match {
     private final EffectResolver effects;
     private final Map<Side, Integer> damageDealt = new EnumMap<>(Side.class);
     private boolean played;
+    /** Turn state: an Amplify played this turn is waiting for the next card (DESIGN.md §5). */
+    private boolean amplifyPending;
 
     public Match(Champion championA, Champion championB, Side firstSide, Random random, MatchLog log) {
         champions.put(Side.A, Objects.requireNonNull(championA, "championA"));
@@ -66,7 +69,7 @@ public final class Match {
                 return result(Optional.of(active), turn, EndReason.KO);
             }
             resolvePhase(turn);
-            endPhase(me);
+            endPhase(turn, me, opponent);
 
             active = active.opponent();
         }
@@ -108,8 +111,9 @@ public final class Match {
 
             me.removeFromHand(card);
             me.pay(card.cost());
-            int damage = effects.apply(card, me, opponent);
-            damageDealt.merge(active, damage, Integer::sum);
+            PlayOutcome outcome = effects.apply(card, me, opponent, amplifyPending);
+            amplifyPending = outcome.amplifyPending();
+            damageDealt.merge(active, outcome.damageDealt(), Integer::sum);
             me.putAtBottom(card);
             playedThisTurn.add(card);
 
@@ -126,10 +130,25 @@ public final class Match {
         log.line("After turn " + turn + ": " + a.name() + " " + a.hp() + " HP, " + b.name() + " " + b.hp() + " HP");
     }
 
-    private void endPhase(Champion me) {
+    /**
+     * Unspent mana and an unused Amplify are lost; the opponent's defense has protected them
+     * during this turn, so it counts down (DESIGN.md §3 and §5).
+     */
+    private void endPhase(int turn, Champion me, Champion opponent) {
         me.loseUnspentMana();
+        if (amplifyPending) {
+            log.line("End of turn " + turn + ": " + me.name() + "'s Amplify is lost, no card followed it");
+            amplifyPending = false;
+        }
+        opponent.activeDefense().ifPresent(before -> {
+            String status = opponent.countDownDefense()
+                    .map(after -> " has " + LogText.turnsLeft(after.turnsLeft()))
+                    .orElse(" ends");
+            log.line("End of turn " + turn + ": " + opponent.name() + "'s " + before.cardName() + status);
+        });
     }
 
+    /** Legal play (DESIGN.md §5): in hand, affordable, and no Defense card while one is active. */
     private static void checkPlayable(Champion me, Card card) {
         if (!me.hand().contains(card)) {
             throw new IllegalStateException(me.name() + " tried to play " + card.name() + ", which is not in its hand");
@@ -138,10 +157,13 @@ public final class Match {
             throw new IllegalStateException(me.name() + " tried to play " + card.name() + " (" + card.cost()
                     + " mana) with only " + me.mana() + " mana");
         }
+        if (card instanceof DefenseCard && me.activeDefense().isPresent()) {
+            throw new IllegalStateException(me.name() + " tried to play " + card.name()
+                    + " while it already has an active defense");
+        }
     }
 
-    private static BotView viewFor(Champion me, Champion opponent, List<Card> playedThisTurn) {
-        boolean amplifyPending = false; // Amplify arrives in step 6 of PLAN.md
+    private BotView viewFor(Champion me, Champion opponent, List<Card> playedThisTurn) {
         return new BotView(me.hand(), me.hp(), me.capacity(), me.mana(), me.activeDefense().isPresent(),
                 me.drawPileSize(), opponent.hp(), opponent.hand().size(), amplifyPending, playedThisTurn);
     }
