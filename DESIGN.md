@@ -198,6 +198,20 @@ End of turn 7: B's Guard has 1 turn left
 
 The turn header shows no mana because the Mana phase comes after the Draw phase (§3); the mana gets its own line. A skipped draw reads `A draws nothing (hand full)` or `A draws nothing (draw pile empty)`.
 
+Other effect lines:
+
+```text
+A plays Potion (2 mana): heals 2. A: 27 HP
+A plays Potion (2 mana): heals 1 of 2 (max 30 HP). A: 30 HP
+A plays Surge: +1 of 2 mana (5/5)
+A plays Insight (1 mana): draws Strike. Hand: Jab, Strike
+A plays Insight (1 mana): draws nothing (draw pile empty)
+A plays Pickpocket (2 mana): takes Meteor from B. Hand: Jab, Meteor
+A plays Pickpocket (2 mana): takes nothing (B's hand is empty)
+```
+
+The log is written from above the table: it names the card Pickpocket takes, even though B would not see it.
+
 ## 10. Architecture
 
 Root package `com.skirmisharena`:

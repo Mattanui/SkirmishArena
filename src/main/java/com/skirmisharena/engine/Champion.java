@@ -112,6 +112,42 @@ public final class Champion {
         hp = Math.max(0, hp - damage);
     }
 
+    /** HP never goes above the maximum (DESIGN.md §5). Returns the HP actually gained. */
+    int heal(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("amount must be >= 0, was " + amount);
+        }
+        int before = hp;
+        hp = Math.min(hp + amount, GameRules.MAX_HP);
+        return hp - before;
+    }
+
+    /** Resource cards restore mana up to the current capacity, never above (DESIGN.md §3). Returns the mana actually restored. */
+    int restoreMana(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("amount must be >= 0, was " + amount);
+        }
+        int before = mana;
+        mana = Math.min(mana + amount, capacity);
+        return mana - before;
+    }
+
+    /** Pickpocket's victim loses a card picked with the run's Random (DESIGN.md §5 and §8). */
+    Card loseRandomCard(Random random) {
+        if (hand.isEmpty()) {
+            throw new IllegalStateException(name + " has no card to lose");
+        }
+        return hand.remove(random.nextInt(hand.size()));
+    }
+
+    /** A stolen card joins the hand and now belongs to this champion. The caller checks the hand limit first. */
+    void addToHand(Card card) {
+        if (isHandFull()) {
+            throw new IllegalStateException(name + "'s hand is full");
+        }
+        hand.add(Objects.requireNonNull(card, "card"));
+    }
+
     void removeFromHand(Card card) {
         if (!hand.remove(card)) {
             throw new IllegalStateException(card.name() + " is not in " + name + "'s hand");

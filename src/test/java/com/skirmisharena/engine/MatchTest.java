@@ -4,6 +4,8 @@ import com.skirmisharena.bot.BotView;
 import com.skirmisharena.bot.Strategy;
 import com.skirmisharena.card.AttackCard;
 import com.skirmisharena.card.Card;
+import com.skirmisharena.card.DrawCard;
+import com.skirmisharena.card.StealCard;
 import com.skirmisharena.log.NoMatchLog;
 import com.skirmisharena.log.TextMatchLog;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,7 @@ import static com.skirmisharena.engine.TestStrategies.failIfAskedAfterKo;
 import static com.skirmisharena.engine.TestStrategies.recording;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -132,6 +135,38 @@ class MatchTest {
         Match match = new Match(a, b, Side.A, new Random(1), new NoMatchLog());
 
         assertThrows(IllegalStateException.class, match::play);
+    }
+
+    @Test
+    void aStolenCardBelongsToTheThiefOncePlayed() {
+        // Turn 3: A's Pickpocket takes B's only card, a Meteor. From turn 9 A plays it whenever it can:
+        // B goes 30 -> 22 (turn 9) -> 14 (turn 13) -> 6 (turn 15) -> 0 (turn 19).
+        Card pickpocket = new StealCard("Pickpocket", 2, 1);
+        Champion a = new Champion("A", PLAY_FIRST_AFFORDABLE, List.of(pickpocket));
+        Champion b = new Champion("B", PASS, List.of(METEOR));
+
+        MatchResult result = new Match(a, b, Side.A, new Random(1), new NoMatchLog()).play();
+
+        assertAll(
+                () -> assertEquals(Optional.of(Side.A), result.winner()),
+                () -> assertEquals(EndReason.KO, result.endReason()),
+                () -> assertEquals(19, result.turnsPlayed()),
+                () -> assertEquals(32, result.damageDealtBy(Side.A)),
+                () -> assertTrue(a.drawPile().contains(METEOR), "the Meteor went to the thief's pile"),
+                () -> assertFalse(b.hand().contains(METEOR) || b.drawPile().contains(METEOR),
+                        "the Meteor never went back to B"));
+    }
+
+    @Test
+    void aTurnWithMoreThan50CardsPlayedIsStopped() {
+        // Test-only card: free and draws a card, so the hand never shrinks and the turn would never end.
+        Card freeInsight = new DrawCard("Free Insight", 0, 1);
+        Champion a = new Champion("A", PLAY_FIRST_AFFORDABLE, Collections.nCopies(10, freeInsight));
+        Champion b = new Champion("B", PASS, TWENTY_JABS);
+        Match match = new Match(a, b, Side.A, new Random(1), new NoMatchLog());
+
+        IllegalStateException error = assertThrows(IllegalStateException.class, match::play);
+        assertTrue(error.getMessage().contains("more than 50 cards in one turn"), error.getMessage());
     }
 
     @Test

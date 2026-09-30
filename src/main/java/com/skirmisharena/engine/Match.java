@@ -11,7 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
+
+import static com.skirmisharena.engine.LogText.names;
 
 /**
  * Runs one match between two champions, turn by turn, through the five phases of DESIGN.md §3:
@@ -24,8 +25,6 @@ public final class Match {
 
     private final Map<Side, Champion> champions = new EnumMap<>(Side.class);
     private final Side firstSide;
-    /** The run's single Random (DESIGN.md §8). Pickpocket will use it from step 5 of PLAN.md. */
-    private final Random random;
     private final MatchLog log;
     private final EffectResolver effects;
     private final Map<Side, Integer> damageDealt = new EnumMap<>(Side.class);
@@ -35,9 +34,8 @@ public final class Match {
         champions.put(Side.A, Objects.requireNonNull(championA, "championA"));
         champions.put(Side.B, Objects.requireNonNull(championB, "championB"));
         this.firstSide = Objects.requireNonNull(firstSide, "firstSide");
-        this.random = Objects.requireNonNull(random, "random");
         this.log = Objects.requireNonNull(log, "log");
-        this.effects = new EffectResolver(log);
+        this.effects = new EffectResolver(Objects.requireNonNull(random, "random"), log);
         for (Side side : Side.values()) {
             damageDealt.put(side, 0);
         }
@@ -158,9 +156,5 @@ public final class Match {
 
     private MatchResult result(Optional<Side> winner, int turnsPlayed, EndReason endReason) {
         return new MatchResult(winner, turnsPlayed, endReason, damageDealt);
-    }
-
-    private static String names(List<Card> cards) {
-        return cards.stream().map(Card::name).collect(Collectors.joining(", "));
     }
 }
