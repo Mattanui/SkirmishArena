@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Supplier;
 
 import static com.skirmisharena.engine.LogText.names;
 import static com.skirmisharena.engine.LogText.nextTurns;
@@ -23,6 +24,7 @@ import static com.skirmisharena.engine.LogText.playPrefix;
 /**
  * Applies the effect of a played card, immediately (DESIGN.md §3 and §5), and logs it.
  * When an Amplify bonus is pending, the card uses its "Amplified" effect (DESIGN.md §4).
+ * Every state change happens before, and outside, the log line: logging never changes the game.
  */
 final class EffectResolver {
 
@@ -80,12 +82,10 @@ final class EffectResolver {
         int damage = defense.map(active -> active.absorb(raw)).orElse(raw);
         opponent.takeDamage(damage);
 
-        String throughDefense = defense.isPresent()
-                ? ", " + opponent.name() + "'s " + defense.get().cardName() + " absorbs " + (raw - damage)
-                        + " -> " + damage + " damage"
-                : "";
-        log.line(playPrefix(caster, attack, factor > 1) + raw + " damage" + throughDefense + ". "
-                + opponent.name() + ": " + opponent.hp() + " HP");
+        write(() -> playPrefix(caster, attack, factor > 1) + raw + " damage"
+                + defense.map(active -> ", " + opponent.name() + "'s " + active.cardName() + " absorbs "
+                        + (raw - damage) + " -> " + damage + " damage").orElse("")
+                + ". " + opponent.name() + ": " + opponent.hp() + " HP");
         return damage;
     }
 
@@ -94,12 +94,7 @@ final class EffectResolver {
         ActiveDefense defense = amplified ? amplifiedDefense(card) : defense(card);
         caster.raiseDefense(defense);
 
-        String protection = switch (defense.kind()) {
-            case REDUCE -> "incoming attack cards deal " + defense.amount() + " less";
-            case HALVE -> "incoming attack cards deal half damage";
-            case BLOCK -> "every incoming attack card is blocked";
-        };
-        log.line(playPrefix(caster, card, amplified) + protection + " during " + opponent.name() + "'s "
+        write(() -> playPrefix(caster, card, amplified) + protection(defense) + " during " + opponent.name() + "'s "
                 + nextTurns(defense.turnsLeft()));
     }
 
@@ -116,23 +111,34 @@ final class EffectResolver {
         };
     }
 
+    private static String protection(ActiveDefense defense) {
+        return switch (defense.kind()) {
+            case REDUCE -> "incoming attack cards deal " + defense.amount() + " less";
+            case HALVE -> "incoming attack cards deal half damage";
+            case BLOCK -> "every incoming attack card is blocked";
+        };
+    }
+
     /** HP never goes above 30 (DESIGN.md §5). */
     private void heal(HealCard heal, int factor, Champion caster) {
         int amount = heal.amount() * factor;
         int healed = caster.heal(amount);
-        String effect = healed == amount
-                ? "heals " + healed
-                : "heals " + healed + " of " + amount + " (max " + GameRules.MAX_HP + " HP)";
-        log.line(playPrefix(caster, heal, factor > 1) + effect + ". " + caster.name() + ": " + caster.hp() + " HP");
+
+        write(() -> playPrefix(caster, heal, factor > 1)
+                + (healed == amount
+                        ? "heals " + healed
+                        : "heals " + healed + " of " + amount + " (max " + GameRules.MAX_HP + " HP)")
+                + ". " + caster.name() + ": " + caster.hp() + " HP");
     }
 
     /** Restores mana up to the current capacity, never raises the capacity (DESIGN.md §3). */
     private void restoreMana(ResourceCard resource, int factor, Champion caster) {
         int amount = resource.mana() * factor;
         int restored = caster.restoreMana(amount);
-        String gained = restored == amount ? "+" + restored : "+" + restored + " of " + amount;
-        log.line(playPrefix(caster, resource, factor > 1) + gained + " mana (" + caster.mana() + "/"
-                + caster.capacity() + ")");
+
+        write(() -> playPrefix(caster, resource, factor > 1)
+                + (restored == amount ? "+" + restored : "+" + restored + " of " + amount)
+                + " mana (" + caster.mana() + "/" + caster.capacity() + ")");
     }
 
     /** Draws from the own pile; stops at 7 cards in hand or on an empty pile (DESIGN.md §5). */
@@ -145,10 +151,11 @@ final class EffectResolver {
             }
             drawn.add(card.get());
         }
-        String effect = drawn.isEmpty()
-                ? "draws nothing (" + (caster.isHandFull() ? "hand full" : "draw pile empty") + ")"
-                : "draws " + names(drawn) + ". Hand: " + names(caster.hand());
-        log.line(playPrefix(caster, draw, factor > 1) + effect);
+
+        write(() -> playPrefix(caster, draw, factor > 1)
+                + (drawn.isEmpty()
+                        ? "draws nothing (" + (caster.isHandFull() ? "hand full" : "draw pile empty") + ")"
+                        : "draws " + names(drawn) + ". Hand: " + names(caster.hand())));
     }
 
     /**
@@ -162,22 +169,30 @@ final class EffectResolver {
             caster.addToHand(card);
             taken.add(card);
         }
-        String effect;
+
+        write(() -> playPrefix(caster, steal, factor > 1) + stealEffect(taken, caster, opponent));
+    }
+
+    private static String stealEffect(List<Card> taken, Champion caster, Champion opponent) {
         if (!taken.isEmpty()) {
-            effect = "takes " + names(taken) + " from " + opponent.name() + ". Hand: " + names(caster.hand());
-        } else if (opponent.hand().isEmpty()) {
-            effect = "takes nothing (" + opponent.name() + "'s hand is empty)";
-        } else {
-            effect = "takes nothing (hand full)";
+            return "takes " + names(taken) + " from " + opponent.name() + ". Hand: " + names(caster.hand());
         }
-        log.line(playPrefix(caster, steal, factor > 1) + effect);
+        if (opponent.hand().isEmpty()) {
+            return "takes nothing (" + opponent.name() + "'s hand is empty)";
+        }
+        return "takes nothing (hand full)";
     }
 
     /** The next card of this turn is doubled; a second Amplify adds nothing, no x4 (DESIGN.md §5). */
     private void amplify(AmplifyCard amplify, boolean alreadyPending, Champion caster) {
-        String effect = alreadyPending
-                ? "no effect, the next card is already doubled"
-                : "the next card this turn is doubled";
-        log.line(playPrefix(caster, amplify, false) + effect);
+        write(() -> playPrefix(caster, amplify, false)
+                + (alreadyPending ? "no effect, the next card is already doubled" : "the next card this turn is doubled"));
+    }
+
+    /** Builds the line only when someone keeps it (DESIGN.md §9: bulk runs log nothing). */
+    private void write(Supplier<String> line) {
+        if (log.enabled()) {
+            log.line(line.get());
+        }
     }
 }

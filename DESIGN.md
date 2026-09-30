@@ -194,7 +194,11 @@ A plays Guard (1 mana): incoming attack cards deal 1 less during B's next 2 turn
 A passes, 1 mana unused
 After turn 7: A 24 HP, B 18 HP
 End of turn 7: B's Guard has 1 turn left
+...
+=== Result: A wins on HP after 50 turns. HP A 21, B 12 ===
 ```
+
+The last line is one of `A wins by KO on turn 15`, `A wins on HP after 50 turns` or `draw after 50 turns`, followed by both HPs. The header line is written by the runner (it knows the match number, the bots and the seed) with `Match.header(...)`; everything else is written by the match itself. Bulk runs use `NoMatchLog`, whose `enabled()` is false: the engine then builds no line at all.
 
 The turn header shows no mana because the Mana phase comes after the Draw phase (§3); the mana gets its own line. A skipped draw reads `A draws nothing (hand full)` or `A draws nothing (draw pile empty)`.
 

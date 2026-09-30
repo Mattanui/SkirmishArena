@@ -124,7 +124,7 @@ Commit: `feat(log): full turn-by-turn match log`
 
 ## Step 9 — Series, stats and command line
 
-> Step 9 of PLAN.md: the runnable deliverable. `SeriesStats` turns a list of `MatchResult` into the stats of DESIGN.md §9 (win rate per side, draws, average length, average damage per side, KO vs turn limit). `Main` parses `--bot-a`, `--bot-b`, `--matches`, `--seed` and `--log`, with the names and defaults of README.md, and rejects unknown options with a usage message. It creates one `Random` from the seed, runs N matches alternating the first player (odd → A, even → B), logs match 1 with `TextMatchLog` into the `--log` file and the others with `NoMatchLog`, then prints the stats. Tests: `SeriesStats` arithmetic on hand-made results; the same options run twice give identical stats and an identical log (determinism); argument errors.
+> Step 9 of PLAN.md: the runnable deliverable. `SeriesStats` turns a list of `MatchResult` into the stats of DESIGN.md §9 (win rate per side, draws, average length, average damage per side, KO vs turn limit). `Main` parses `--bot-a`, `--bot-b`, `--matches`, `--seed` and `--log`, with the names and defaults of README.md, and rejects unknown options with a usage message. It creates one `Random` from the seed, runs N matches alternating the first player (odd → A, even → B), logs match 1 with `TextMatchLog` (starting with `Match.header(...)`) into the `--log` file and the others with `NoMatchLog`, then prints the stats. Tests: `SeriesStats` arithmetic on hand-made results; the same options run twice give identical stats and an identical log (determinism); argument errors.
 
 Checks:
 - [ ] `mvn package`, then run `java -jar target/skirmish-arena.jar` twice: identical output

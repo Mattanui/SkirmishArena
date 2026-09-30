@@ -7,4 +7,10 @@ public final class NoMatchLog implements MatchLog {
     public void line(String text) {
         // Intentionally empty: nothing is kept.
     }
+
+    /** Tells the engine not to build any line at all. */
+    @Override
+    public boolean enabled() {
+        return false;
+    }
 }

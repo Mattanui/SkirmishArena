@@ -12,12 +12,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Supplier;
 
 import static com.skirmisharena.engine.LogText.names;
+import static com.skirmisharena.engine.LogText.turnsLeft;
 
 /**
  * Runs one match between two champions, turn by turn, through the five phases of DESIGN.md §3:
  * Draw, Mana, Play, Resolve, End. The match ends at once on a KO, or after 50 turns (DESIGN.md §6).
+ * Every state change happens outside the log lines: logging never changes the game.
  */
 public final class Match {
 
@@ -44,6 +47,16 @@ public final class Match {
         }
     }
 
+    /**
+     * The first line of a match log (DESIGN.md §9), e.g.
+     * "=== Match 1: Aggressive (A) vs Defensive (B), seed 42. A starts ===".
+     * Written by the runner, which knows the match number, the bots and the seed; a Match does not.
+     */
+    public static String header(int matchNumber, String botA, String botB, long seed, Side firstSide) {
+        return "=== Match " + matchNumber + ": " + botA + " (A) vs " + botB + " (B), seed " + seed + ". "
+                + firstSide + " starts ===";
+    }
+
     /** Plays the whole match. A match can be played only once. */
     public MatchResult play() {
         if (played) {
@@ -53,14 +66,20 @@ public final class Match {
 
         for (Champion champion : champions.values()) {
             champion.drawStartingHand();
-            log.line(champion.name() + " starting hand: " + names(champion.hand()));
+            write(() -> champion.name() + " starting hand: " + names(champion.hand()));
         }
+        MatchResult result = playTurns();
+        write(() -> resultLine(result));
+        return result;
+    }
 
+    private MatchResult playTurns() {
         Side active = firstSide;
         for (int turn = 1; turn <= GameRules.MAX_TURNS; turn++) {
             Champion me = champions.get(active);
             Champion opponent = champions.get(active.opponent());
-            log.line("--- Turn " + turn + ": " + me.name() + " ---");
+            int turnNumber = turn;
+            write(() -> "--- Turn " + turnNumber + ": " + me.name() + " ---");
 
             drawPhase(me);
             manaPhase(me);
@@ -79,18 +98,16 @@ public final class Match {
     private void drawPhase(Champion me) {
         for (int i = 0; i < GameRules.CARDS_DRAWN_PER_TURN; i++) {
             Optional<Card> drawn = me.draw();
-            if (drawn.isPresent()) {
-                log.line(me.name() + " draws " + drawn.get().name() + ". Hand: " + names(me.hand()));
-            } else {
-                String reason = me.isHandFull() ? "hand full" : "draw pile empty";
-                log.line(me.name() + " draws nothing (" + reason + ")");
-            }
+            write(() -> drawn
+                    .map(card -> me.name() + " draws " + card.name() + ". Hand: " + names(me.hand()))
+                    .orElseGet(() -> me.name() + " draws nothing ("
+                            + (me.isHandFull() ? "hand full" : "draw pile empty") + ")"));
         }
     }
 
     private void manaPhase(Champion me) {
         me.startOwnTurnMana();
-        log.line(me.name() + " has " + me.mana() + "/" + me.capacity() + " mana");
+        write(() -> me.name() + " has " + me.mana() + "/" + me.capacity() + " mana");
     }
 
     /** Asks the bot for cards until it passes. Returns true if the opponent was knocked out. */
@@ -99,7 +116,7 @@ public final class Match {
         while (true) {
             Optional<Card> choice = me.strategy().nextCard(viewFor(me, opponent, playedThisTurn));
             if (choice.isEmpty()) {
-                log.line(me.name() + " passes, " + me.mana() + " mana unused");
+                write(() -> me.name() + " passes, " + me.mana() + " mana unused");
                 return false;
             }
             if (playedThisTurn.size() == MAX_CARDS_PER_TURN) {
@@ -127,7 +144,7 @@ public final class Match {
     private void resolvePhase(int turn) {
         Champion a = champions.get(Side.A);
         Champion b = champions.get(Side.B);
-        log.line("After turn " + turn + ": " + a.name() + " " + a.hp() + " HP, " + b.name() + " " + b.hp() + " HP");
+        write(() -> "After turn " + turn + ": " + a.name() + " " + a.hp() + " HP, " + b.name() + " " + b.hp() + " HP");
     }
 
     /**
@@ -137,15 +154,13 @@ public final class Match {
     private void endPhase(int turn, Champion me, Champion opponent) {
         me.loseUnspentMana();
         if (amplifyPending) {
-            log.line("End of turn " + turn + ": " + me.name() + "'s Amplify is lost, no card followed it");
             amplifyPending = false;
+            write(() -> "End of turn " + turn + ": " + me.name() + "'s Amplify is lost, no card followed it");
         }
-        opponent.activeDefense().ifPresent(before -> {
-            String status = opponent.countDownDefense()
-                    .map(after -> " has " + LogText.turnsLeft(after.turnsLeft()))
-                    .orElse(" ends");
-            log.line("End of turn " + turn + ": " + opponent.name() + "'s " + before.cardName() + status);
-        });
+        Optional<ActiveDefense> before = opponent.activeDefense();
+        Optional<ActiveDefense> after = opponent.countDownDefense();
+        before.ifPresent(defense -> write(() -> "End of turn " + turn + ": " + opponent.name() + "'s "
+                + defense.cardName() + after.map(still -> " has " + turnsLeft(still.turnsLeft())).orElse(" ends")));
     }
 
     /** Legal play (DESIGN.md §5): in hand, affordable, and no Defense card while one is active. */
@@ -178,5 +193,24 @@ public final class Match {
 
     private MatchResult result(Optional<Side> winner, int turnsPlayed, EndReason endReason) {
         return new MatchResult(winner, turnsPlayed, endReason, damageDealt);
+    }
+
+    /** "=== Result: A wins by KO on turn 15. HP A 30, B 0 ===" (DESIGN.md §9). */
+    private String resultLine(MatchResult result) {
+        Champion a = champions.get(Side.A);
+        Champion b = champions.get(Side.B);
+        String outcome = result.winner()
+                .map(side -> champions.get(side).name() + (result.endReason() == EndReason.KO
+                        ? " wins by KO on turn " + result.turnsPlayed()
+                        : " wins on HP after " + result.turnsPlayed() + " turns"))
+                .orElse("draw after " + result.turnsPlayed() + " turns");
+        return "=== Result: " + outcome + ". HP " + a.name() + " " + a.hp() + ", " + b.name() + " " + b.hp() + " ===";
+    }
+
+    /** Builds the line only when someone keeps it (DESIGN.md §9: bulk runs log nothing). */
+    private void write(Supplier<String> line) {
+        if (log.enabled()) {
+            log.line(line.get());
+        }
     }
 }
