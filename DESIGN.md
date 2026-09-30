@@ -226,7 +226,7 @@ Root package `com.skirmisharena`:
 |---|---|
 | `card` | `Card` (sealed interface) and one record per effect: `AttackCard`, `DefenseCard`, `ResourceCard`, `DrawCard`, `StealCard`, `HealCard`, `AmplifyCard`; `CardCategory`; `DefenseKind`; `CardPool` (the 27 cards) |
 | `engine` | `GameRules` (constants), `Champion` (mutable state), `Match` (runs one match, phases), `EffectResolver` (applies a card), `ActiveDefense`, `MatchResult`, `Side`, `EndReason`; internal helpers `PlayOutcome` (damage dealt, Amplify still pending) and `LogText` (log formatting) |
-| `bot` | `Strategy`, `BotView` (read-only snapshot given to a bot), `AggressiveStrategy`, `DefensiveStrategy`, `BalancedStrategy`, `BotType` (command-line name → strategy) |
+| `bot` | `Strategy`, `BotView` (read-only snapshot given to a bot), `AggressiveStrategy`, `DefensiveStrategy`, `BalancedStrategy`, `BotType` (command-line name → strategy); internal helpers `Rule` (one line of a priority list) and `CardChoices` (the shared vocabulary of §7) |
 | `log` | `MatchLog` (interface), `TextMatchLog` (sample match), `NoMatchLog` (bulk runs) |
 | `stats` | `SeriesStats` |
 | root | `Main`: parses arguments, runs the N matches, prints stats, writes the sample log |
