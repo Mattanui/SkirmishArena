@@ -1,0 +1,333 @@
+=== Match 1: Aggressive (A) vs Defensive (B), seed 42. A starts ===
+A starting hand: Shield, Strike, Strike
+B starting hand: Bandage, Shield, Strike
+--- Turn 1: A ---
+A draws Barrier. Hand: Shield, Strike, Strike, Barrier
+A has 1/1 mana
+A passes, 1 mana unused
+After turn 1: A 30 HP, B 30 HP
+--- Turn 2: B ---
+B draws Barrier. Hand: Bandage, Shield, Strike, Barrier
+B has 1/1 mana
+B passes, 1 mana unused
+After turn 2: A 30 HP, B 30 HP
+--- Turn 3: A ---
+A draws Surge. Hand: Shield, Strike, Strike, Barrier, Surge
+A has 2/2 mana
+A plays Strike (2 mana): 2 damage. B: 28 HP
+A plays Surge: +2 mana (2/2)
+A plays Strike (2 mana): 2 damage. B: 26 HP
+A passes, 0 mana unused
+After turn 3: A 30 HP, B 26 HP
+--- Turn 4: B ---
+B draws Surge. Hand: Bandage, Shield, Strike, Barrier, Surge
+B has 2/2 mana
+B plays Strike (2 mana): 2 damage. A: 28 HP
+B plays Surge: +2 mana (2/2)
+B plays Shield (2 mana): incoming attack cards deal 2 less during A's next 2 turns
+B passes, 0 mana unused
+After turn 4: A 28 HP, B 26 HP
+--- Turn 5: A ---
+A draws Amplify. Hand: Shield, Barrier, Amplify
+A has 3/3 mana
+A plays Barrier (3 mana): incoming attack cards deal half damage during B's next 2 turns
+A passes, 0 mana unused
+After turn 5: A 28 HP, B 26 HP
+End of turn 5: B's Shield has 1 turn left
+--- Turn 6: B ---
+B draws Surge. Hand: Bandage, Barrier, Surge
+B has 3/3 mana
+B plays Bandage (1 mana): heals 1. B: 27 HP
+B plays Surge: +1 of 2 mana (3/3)
+B passes, 3 mana unused
+After turn 6: A 28 HP, B 27 HP
+End of turn 6: A's Barrier has 1 turn left
+--- Turn 7: A ---
+A draws Meteor. Hand: Shield, Amplify, Meteor
+A has 4/4 mana
+A passes, 4 mana unused
+After turn 7: A 28 HP, B 27 HP
+End of turn 7: B's Shield ends
+--- Turn 8: B ---
+B draws Focus. Hand: Barrier, Focus
+B has 4/4 mana
+B plays Barrier (3 mana): incoming attack cards deal half damage during A's next 2 turns
+B plays Focus: +1 mana (2/4)
+B passes, 2 mana unused
+After turn 8: A 28 HP, B 27 HP
+End of turn 8: A's Barrier ends
+--- Turn 9: A ---
+A draws Focus. Hand: Shield, Amplify, Meteor, Focus
+A has 5/5 mana
+A plays Meteor (5 mana): 8 damage, B's Barrier absorbs 4 -> 4 damage. B: 23 HP
+A plays Focus: +1 mana (1/5)
+A passes, 1 mana unused
+After turn 9: A 28 HP, B 23 HP
+End of turn 9: B's Barrier has 1 turn left
+--- Turn 10: B ---
+B draws Jab. Hand: Jab
+B has 5/5 mana
+B plays Jab (1 mana): 1 damage. A: 27 HP
+B passes, 4 mana unused
+After turn 10: A 27 HP, B 23 HP
+--- Turn 11: A ---
+A draws Jab. Hand: Shield, Amplify, Jab
+A has 6/6 mana
+A plays Amplify (5 mana): the next card this turn is doubled
+A plays Jab (1 mana, amplified): 2 damage, B's Barrier absorbs 1 -> 1 damage. B: 22 HP
+A passes, 0 mana unused
+After turn 11: A 27 HP, B 22 HP
+End of turn 11: B's Barrier ends
+--- Turn 12: B ---
+B draws Potion. Hand: Potion
+B has 6/6 mana
+B plays Potion (2 mana): heals 2. B: 24 HP
+B passes, 4 mana unused
+After turn 12: A 27 HP, B 24 HP
+--- Turn 13: A ---
+A draws Bandage. Hand: Shield, Bandage
+A has 7/7 mana
+A plays Bandage (1 mana): heals 1. A: 28 HP
+A plays Shield (2 mana): incoming attack cards deal 2 less during B's next 2 turns
+A passes, 4 mana unused
+After turn 13: A 28 HP, B 24 HP
+--- Turn 14: B ---
+B draws Amplify. Hand: Amplify
+B has 7/7 mana
+B passes, 7 mana unused
+After turn 14: A 28 HP, B 24 HP
+End of turn 14: A's Shield has 1 turn left
+--- Turn 15: A ---
+A draws Heavy Blow. Hand: Heavy Blow
+A has 8/8 mana
+A plays Heavy Blow (3 mana): 4 damage. B: 20 HP
+A passes, 5 mana unused
+After turn 15: A 28 HP, B 20 HP
+--- Turn 16: B ---
+B draws Aegis. Hand: Amplify, Aegis
+B has 8/8 mana
+B plays Aegis (5 mana): every incoming attack card is blocked during A's next turn
+B passes, 3 mana unused
+After turn 16: A 28 HP, B 20 HP
+End of turn 16: A's Shield ends
+--- Turn 17: A ---
+A draws Potion. Hand: Potion
+A has 9/9 mana
+A plays Potion (2 mana): heals 2. A: 30 HP
+A passes, 7 mana unused
+After turn 17: A 30 HP, B 20 HP
+End of turn 17: B's Aegis ends
+--- Turn 18: B ---
+B draws Jab. Hand: Amplify, Jab
+B has 9/9 mana
+B plays Amplify (5 mana): the next card this turn is doubled
+B plays Jab (1 mana, amplified): 2 damage. A: 28 HP
+B passes, 3 mana unused
+After turn 18: A 28 HP, B 20 HP
+--- Turn 19: A ---
+A draws Surge. Hand: Surge
+A has 10/10 mana
+A passes, 10 mana unused
+After turn 19: A 28 HP, B 20 HP
+--- Turn 20: B ---
+B draws Insight. Hand: Insight
+B has 10/10 mana
+B plays Insight (1 mana): draws Insight. Hand: Insight
+B plays Insight (1 mana): draws Focus. Hand: Focus
+B plays Focus: +1 mana (9/10)
+B passes, 9 mana unused
+After turn 20: A 28 HP, B 20 HP
+--- Turn 21: A ---
+A draws Jab. Hand: Surge, Jab
+A has 10/10 mana
+A plays Jab (1 mana): 1 damage. B: 19 HP
+A plays Surge: +1 of 2 mana (10/10)
+A passes, 10 mana unused
+After turn 21: A 28 HP, B 19 HP
+--- Turn 22: B ---
+B draws Bandage. Hand: Bandage
+B has 10/10 mana
+B plays Bandage (1 mana): heals 1. B: 20 HP
+B passes, 9 mana unused
+After turn 22: A 28 HP, B 20 HP
+--- Turn 23: A ---
+A draws Guard. Hand: Guard
+A has 10/10 mana
+A plays Guard (1 mana): incoming attack cards deal 1 less during B's next 2 turns
+A passes, 9 mana unused
+After turn 23: A 28 HP, B 20 HP
+--- Turn 24: B ---
+B draws Shield. Hand: Shield
+B has 10/10 mana
+B plays Shield (2 mana): incoming attack cards deal 2 less during A's next 2 turns
+B passes, 8 mana unused
+After turn 24: A 28 HP, B 20 HP
+End of turn 24: A's Guard has 1 turn left
+--- Turn 25: A ---
+A draws Bandage. Hand: Bandage
+A has 10/10 mana
+A plays Bandage (1 mana): heals 1. A: 29 HP
+A passes, 9 mana unused
+After turn 25: A 29 HP, B 20 HP
+End of turn 25: B's Shield has 1 turn left
+--- Turn 26: B ---
+B draws Pickpocket. Hand: Pickpocket
+B has 10/10 mana
+B passes, 10 mana unused
+After turn 26: A 29 HP, B 20 HP
+End of turn 26: A's Guard ends
+--- Turn 27: A ---
+A draws Focus. Hand: Focus
+A has 10/10 mana
+A passes, 10 mana unused
+After turn 27: A 29 HP, B 20 HP
+End of turn 27: B's Shield ends
+--- Turn 28: B ---
+B draws Potion. Hand: Pickpocket, Potion
+B has 10/10 mana
+B plays Potion (2 mana): heals 2. B: 22 HP
+B plays Pickpocket (2 mana): takes Focus from A. Hand: Focus
+B plays Focus: +1 mana (7/10)
+B passes, 7 mana unused
+After turn 28: A 29 HP, B 22 HP
+--- Turn 29: A ---
+A draws Aegis. Hand: Aegis
+A has 10/10 mana
+A plays Aegis (5 mana): every incoming attack card is blocked during B's next turn
+A passes, 5 mana unused
+After turn 29: A 29 HP, B 22 HP
+--- Turn 30: B ---
+B draws Meteor. Hand: Meteor
+B has 10/10 mana
+B plays Meteor (5 mana): 8 damage, A's Aegis absorbs 8 -> 0 damage. A: 29 HP
+B passes, 5 mana unused
+After turn 30: A 29 HP, B 22 HP
+End of turn 30: A's Aegis ends
+--- Turn 31: A ---
+A draws Focus. Hand: Focus
+A has 10/10 mana
+A passes, 10 mana unused
+After turn 31: A 29 HP, B 22 HP
+--- Turn 32: B ---
+B draws Strike. Hand: Strike
+B has 10/10 mana
+B plays Strike (2 mana): 2 damage. A: 27 HP
+B passes, 8 mana unused
+After turn 32: A 27 HP, B 22 HP
+--- Turn 33: A ---
+A draws Insight. Hand: Focus, Insight
+A has 10/10 mana
+A plays Insight (1 mana): draws Strike. Hand: Focus, Strike
+A plays Strike (2 mana): 2 damage. B: 20 HP
+A plays Focus: +1 mana (8/10)
+A passes, 8 mana unused
+After turn 33: A 27 HP, B 20 HP
+--- Turn 34: B ---
+B draws Surge. Hand: Surge
+B has 10/10 mana
+B passes, 10 mana unused
+After turn 34: A 27 HP, B 20 HP
+--- Turn 35: A ---
+A draws Surge. Hand: Surge
+A has 10/10 mana
+A passes, 10 mana unused
+After turn 35: A 27 HP, B 20 HP
+--- Turn 36: B ---
+B draws Shield. Hand: Surge, Shield
+B has 10/10 mana
+B plays Shield (2 mana): incoming attack cards deal 2 less during A's next 2 turns
+B plays Surge: +2 mana (10/10)
+B passes, 10 mana unused
+After turn 36: A 27 HP, B 20 HP
+--- Turn 37: A ---
+A draws Strike. Hand: Surge, Strike
+A has 10/10 mana
+A plays Strike (2 mana): 2 damage, B's Shield absorbs 2 -> 0 damage. B: 20 HP
+A plays Surge: +2 mana (10/10)
+A passes, 10 mana unused
+After turn 37: A 27 HP, B 20 HP
+End of turn 37: B's Shield has 1 turn left
+--- Turn 38: B ---
+B draws Bandage. Hand: Bandage
+B has 10/10 mana
+B plays Bandage (1 mana): heals 1. B: 21 HP
+B passes, 9 mana unused
+After turn 38: A 27 HP, B 21 HP
+--- Turn 39: A ---
+A draws Barrier. Hand: Barrier
+A has 10/10 mana
+A plays Barrier (3 mana): incoming attack cards deal half damage during B's next 2 turns
+A passes, 7 mana unused
+After turn 39: A 27 HP, B 21 HP
+End of turn 39: B's Shield ends
+--- Turn 40: B ---
+B draws Surge. Hand: Surge
+B has 10/10 mana
+B passes, 10 mana unused
+After turn 40: A 27 HP, B 21 HP
+End of turn 40: A's Barrier has 1 turn left
+--- Turn 41: A ---
+A draws Meteor. Hand: Meteor
+A has 10/10 mana
+A plays Meteor (5 mana): 8 damage. B: 13 HP
+A passes, 5 mana unused
+After turn 41: A 27 HP, B 13 HP
+--- Turn 42: B ---
+B draws Barrier. Hand: Surge, Barrier
+B has 10/10 mana
+B plays Barrier (3 mana): incoming attack cards deal half damage during A's next 2 turns
+B plays Surge: +2 mana (9/10)
+B passes, 9 mana unused
+After turn 42: A 27 HP, B 13 HP
+End of turn 42: A's Barrier ends
+--- Turn 43: A ---
+A draws Focus. Hand: Focus
+A has 10/10 mana
+A passes, 10 mana unused
+After turn 43: A 27 HP, B 13 HP
+End of turn 43: B's Barrier has 1 turn left
+--- Turn 44: B ---
+B draws Focus. Hand: Focus
+B has 10/10 mana
+B passes, 10 mana unused
+After turn 44: A 27 HP, B 13 HP
+--- Turn 45: A ---
+A draws Amplify. Hand: Focus, Amplify
+A has 10/10 mana
+A passes, 10 mana unused
+After turn 45: A 27 HP, B 13 HP
+End of turn 45: B's Barrier ends
+--- Turn 46: B ---
+B draws Jab. Hand: Focus, Jab
+B has 10/10 mana
+B plays Jab (1 mana): 1 damage. A: 26 HP
+B plays Focus: +1 mana (10/10)
+B passes, 10 mana unused
+After turn 46: A 26 HP, B 13 HP
+--- Turn 47: A ---
+A draws Jab. Hand: Focus, Amplify, Jab
+A has 10/10 mana
+A plays Amplify (5 mana): the next card this turn is doubled
+A plays Jab (1 mana, amplified): 2 damage. B: 11 HP
+A plays Focus: +1 mana (5/10)
+A passes, 5 mana unused
+After turn 47: A 26 HP, B 11 HP
+--- Turn 48: B ---
+B draws Potion. Hand: Potion
+B has 10/10 mana
+B plays Potion (2 mana): heals 2. B: 13 HP
+B passes, 8 mana unused
+After turn 48: A 26 HP, B 13 HP
+--- Turn 49: A ---
+A draws Bandage. Hand: Bandage
+A has 10/10 mana
+A plays Bandage (1 mana): heals 1. A: 27 HP
+A passes, 9 mana unused
+After turn 49: A 27 HP, B 13 HP
+--- Turn 50: B ---
+B draws Aegis. Hand: Aegis
+B has 10/10 mana
+B plays Aegis (5 mana): every incoming attack card is blocked during A's next turn
+B passes, 5 mana unused
+After turn 50: A 27 HP, B 13 HP
+=== Result: A wins on HP after 50 turns. HP A 27, B 13 ===

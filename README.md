@@ -32,6 +32,9 @@ java -jar target/skirmish-arena.jar --bot-a aggressive --bot-b defensive --match
 | `--matches` | `1000` | Number of matches to simulate (N) |
 | `--seed` | `42` | Seed of the run: same seed, same results |
 | `--log` | `sample-match.log` | File that receives the full log of match 1 |
+| `--help` | | Shows the options |
+
+A wrong option prints the error and the usage, and exits with code 2.
 
 ## Output
 

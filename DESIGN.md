@@ -233,7 +233,7 @@ Root package `com.skirmisharena`:
 | `bot` | `Strategy`, `BotView` (read-only snapshot given to a bot), `AggressiveStrategy`, `DefensiveStrategy`, `BalancedStrategy`, `BotType` (command-line name → strategy); internal helpers `Rule` (one line of a priority list) and `CardChoices` (the shared vocabulary of §7) |
 | `log` | `MatchLog` (interface), `TextMatchLog` (sample match), `NoMatchLog` (bulk runs) |
 | `stats` | `SeriesStats` |
-| root | `Main`: parses arguments, runs the N matches, prints stats, writes the sample log |
+| root | `Main` (entry point: prints the stats, writes the sample log, exit code 0 = ok, 1 = log not writable, 2 = bad arguments), `Options` (the command line of README.md), `SeriesRunner` (runs the N matches with one `Random`, keeps the log of match 1) |
 
 ```plantuml
 @startuml
