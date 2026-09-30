@@ -115,7 +115,7 @@ Commit: `feat(bot): aggressive, defensive and balanced strategies`
 
 ## Step 8 — Complete match log
 
-> Step 8 of PLAN.md: complete the human-readable log so that a whole match reads like DESIGN.md §9: a match header (bots, seed, who starts); a turn header (turn number, active side, both HPs, mana); every draw or skipped draw with the reason; every play and its effect; the pass with unused mana; the end-of-turn defense countdown; and a final line (winner or draw, reason, turns, HPs). Bulk runs use `NoMatchLog` and must not pay for building strings (for example with an `enabled()` check). Test: a short hand-built match whose full log is compared line by line with an expected text.
+> Step 8 of PLAN.md: complete the human-readable log so that a whole match reads like DESIGN.md §9. Step 4 already logs starting hands, turn headers, draws, mana, plays, passes and HP after each turn. Add: a match header (bots, seed, who starts); the end-of-turn lines (defense countdown, Amplify lost); and a final line (winner or draw, reason, turns, HPs). Check that every effect from steps 5 and 6 is logged. Bulk runs use `NoMatchLog` and must not pay for building strings (for example with an `enabled()` check). Test: a short hand-built match whose full log is compared line by line with an expected text.
 
 Checks:
 - [ ] Read the expected text in the test: does each line follow the rules?

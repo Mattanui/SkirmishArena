@@ -33,7 +33,7 @@ A turn is one champion's turn. Turns are numbered 1 to 50 across both champions.
 | Draw | Draw 1 card from the top of the own draw pile. Skipped, with no penalty, if the hand already holds 7 cards or the pile is empty. The first player also draws on turn 1. |
 | Mana | Capacity = min(own turn count, 10). Current mana = capacity. |
 | Play | The bot picks one card at a time. For each card: pay its cost, apply its effect at once, put the card at the bottom of the own draw pile. If the opponent reaches 0 HP, the match ends immediately. The phase ends when the bot passes. |
-| Resolve | Effects are already applied, so this phase only records the turn summary (HP, mana, active defenses) in the log. |
+| Resolve | Effects are already applied, so this phase only logs both champions' HP after the turn. |
 | End | Unspent mana is lost. An unused Amplify is lost. The opponent's active defense counts down by 1 turn, since it has just protected them. |
 
 **Resource cards** restore mana within the current capacity: current mana = min(current + X, capacity). Example: capacity 5, 2 mana spent (3 left), Focus (+1) → 4 of 5. At full mana, a Resource card does nothing.
@@ -181,15 +181,22 @@ Each bot is an ordered list of rules. Before each card, it walks the list and pl
 
 ```text
 === Match 1: Aggressive (A) vs Defensive (B), seed 42. A starts ===
---- Turn 7: A | HP A 24, B 19 | mana 4/4 ---
-A draws Strike. Hand: Strike, Jab, Guard, Focus
+A starting hand: Jab, Potion, Guard
+B starting hand: Shield, Strike, Focus
+...
+--- Turn 7: A ---
+A draws Strike. Hand: Jab, Guard, Focus, Strike
+A has 4/4 mana
 A plays Strike (2 mana): 2 damage, B's Guard absorbs 1 -> 1 damage. B: 18 HP
 A plays Jab (1 mana): 1 damage, B's Guard absorbs 1 -> 0 damage. B: 18 HP
 A plays Focus: +1 mana (2/4)
 A plays Guard (1 mana): incoming attack cards deal 1 less during B's next 2 turns
 A passes, 1 mana unused
+After turn 7: A 24 HP, B 18 HP
 End of turn 7: B's Guard has 1 turn left
 ```
+
+The turn header shows no mana because the Mana phase comes after the Draw phase (§3); the mana gets its own line. A skipped draw reads `A draws nothing (hand full)` or `A draws nothing (draw pile empty)`.
 
 ## 10. Architecture
 

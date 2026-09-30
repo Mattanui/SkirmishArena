@@ -7,6 +7,7 @@ import com.skirmisharena.card.DefenseCard;
 import com.skirmisharena.card.ResourceCard;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,10 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.skirmisharena.engine.TestStrategies.PASS;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,7 +34,7 @@ class ChampionTest {
 
     @Test
     void newChampionHasFullHpNoManaNoCardsInHandAndNoDefense() {
-        Champion champion = new Champion("A", List.of(JAB));
+        Champion champion = new Champion("A", PASS, List.of(JAB));
 
         assertAll(
                 () -> assertEquals(30, champion.hp()),
@@ -43,7 +46,7 @@ class ChampionTest {
 
     @Test
     void drawPileHas20CardsAllTakenFromThePool() {
-        Champion champion = Champion.withRandomDeck("A", CardPool.standard(), new Random(42));
+        Champion champion = Champion.withRandomDeck("A", PASS, CardPool.standard(), new Random(42));
 
         List<Card> pile = champion.drawPile();
         assertEquals(20, pile.size());
@@ -54,16 +57,16 @@ class ChampionTest {
 
     @Test
     void sameSeedGivesTheSamePile() {
-        List<Card> first = Champion.withRandomDeck("A", CardPool.standard(), new Random(7)).drawPile();
-        List<Card> second = Champion.withRandomDeck("B", CardPool.standard(), new Random(7)).drawPile();
+        List<Card> first = Champion.withRandomDeck("A", PASS, CardPool.standard(), new Random(7)).drawPile();
+        List<Card> second = Champion.withRandomDeck("B", PASS, CardPool.standard(), new Random(7)).drawPile();
 
         assertEquals(first, second);
     }
 
     @Test
     void differentSeedsGiveDifferentPiles() {
-        List<Card> first = Champion.withRandomDeck("A", CardPool.standard(), new Random(7)).drawPile();
-        List<Card> second = Champion.withRandomDeck("B", CardPool.standard(), new Random(8)).drawPile();
+        List<Card> first = Champion.withRandomDeck("A", PASS, CardPool.standard(), new Random(7)).drawPile();
+        List<Card> second = Champion.withRandomDeck("B", PASS, CardPool.standard(), new Random(8)).drawPile();
 
         assertNotEquals(first, second);
     }
@@ -72,12 +75,12 @@ class ChampionTest {
     void poolSmallerThanTheDeckIsRejected() {
         List<Card> tooSmall = Collections.nCopies(19, JAB);
 
-        assertThrows(IllegalArgumentException.class, () -> Champion.withRandomDeck("A", tooSmall, new Random(1)));
+        assertThrows(IllegalArgumentException.class, () -> Champion.withRandomDeck("A", PASS, tooSmall, new Random(1)));
     }
 
     @Test
     void startingHandIsTheTop3CardsOfThePile() {
-        Champion champion = new Champion("A", List.of(JAB, STRIKE, METEOR, GUARD, FOCUS));
+        Champion champion = new Champion("A", PASS, List.of(JAB, STRIKE, METEOR, GUARD, FOCUS));
 
         champion.drawStartingHand();
 
@@ -87,7 +90,7 @@ class ChampionTest {
 
     @Test
     void drawTakesTheTopCardOfThePile() {
-        Champion champion = new Champion("A", List.of(JAB, STRIKE));
+        Champion champion = new Champion("A", PASS, List.of(JAB, STRIKE));
 
         Optional<Card> drawn = champion.draw();
 
@@ -98,7 +101,7 @@ class ChampionTest {
 
     @Test
     void drawIsSkippedWhenTheHandHolds7Cards() {
-        Champion champion = new Champion("A", Collections.nCopies(9, JAB));
+        Champion champion = new Champion("A", PASS, Collections.nCopies(9, JAB));
         for (int i = 0; i < 7; i++) {
             champion.draw();
         }
@@ -112,7 +115,7 @@ class ChampionTest {
 
     @Test
     void drawIsSkippedOnAnEmptyPile() {
-        Champion champion = new Champion("A", List.of());
+        Champion champion = new Champion("A", PASS, List.of());
 
         Optional<Card> drawn = champion.draw();
 
@@ -122,7 +125,7 @@ class ChampionTest {
 
     @Test
     void aPlayedCardGoesToTheBottomOfThePile() {
-        Champion champion = new Champion("A", List.of(JAB, STRIKE));
+        Champion champion = new Champion("A", PASS, List.of(JAB, STRIKE));
 
         champion.putAtBottom(METEOR);
 
@@ -131,10 +134,68 @@ class ChampionTest {
 
     @Test
     void handCannotBeModifiedFromOutside() {
-        Champion champion = new Champion("A", List.of(JAB));
+        Champion champion = new Champion("A", PASS, List.of(JAB));
         champion.draw();
 
         assertThrows(UnsupportedOperationException.class, () -> champion.hand().clear());
+    }
+
+    @Test
+    void manaPhaseSetsCapacityToTheOwnTurnCountCappedAt10AndRefillsMana() {
+        Champion champion = new Champion("A", PASS, List.of());
+        List<Integer> capacities = new ArrayList<>();
+        for (int turn = 1; turn <= 12; turn++) {
+            champion.startOwnTurnMana();
+            assertEquals(champion.capacity(), champion.mana(), "mana refilled on own turn " + turn);
+            capacities.add(champion.capacity());
+            champion.loseUnspentMana();
+        }
+
+        assertEquals(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10), capacities);
+    }
+
+    @Test
+    void payingSpendsManaAndCannotGoBelowZero() {
+        Champion champion = new Champion("A", PASS, List.of());
+        champion.startOwnTurnMana();
+        champion.startOwnTurnMana();
+
+        champion.pay(2);
+
+        assertEquals(0, champion.mana());
+        assertThrows(IllegalStateException.class, () -> champion.pay(1));
+    }
+
+    @Test
+    void unspentManaIsLostAtTheEndOfTheTurn() {
+        Champion champion = new Champion("A", PASS, List.of());
+        champion.startOwnTurnMana();
+
+        champion.loseUnspentMana();
+
+        assertEquals(0, champion.mana());
+        assertEquals(1, champion.capacity());
+    }
+
+    @Test
+    void hpNeverGoesBelowZeroAndZeroHpIsAKo() {
+        Champion champion = new Champion("A", PASS, List.of());
+
+        champion.takeDamage(29);
+        assertEquals(1, champion.hp());
+        assertFalse(champion.isKo());
+
+        champion.takeDamage(8);
+        assertEquals(0, champion.hp());
+        assertTrue(champion.isKo());
+    }
+
+    @Test
+    void removingACardThatIsNotInTheHandIsRejected() {
+        Champion champion = new Champion("A", PASS, List.of(JAB));
+        champion.draw();
+
+        assertThrows(IllegalStateException.class, () -> champion.removeFromHand(METEOR));
     }
 
     private static Map<Card, Long> countEach(List<Card> cards) {
